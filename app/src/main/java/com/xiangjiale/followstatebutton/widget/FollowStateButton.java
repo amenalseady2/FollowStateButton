@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -23,14 +24,11 @@ public class FollowStateButton extends RelativeLayout {
     private TextView mTextView;
     private ProgressBar mProgressBar;
     private MyHand mMyHand;
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-        }
-    };
-
+    private onFollowLister mOnFollowLister;
+    private int type =0; // 0为加关注 1 关注
+    interface onFollowLister  {
+       void  onFollowClickLister();
+    }
     public  static  class  MyHand extends  Handler {
         WeakReference<FollowStateButton> weakReference;
         public MyHand(FollowStateButton followStateButton){
@@ -43,31 +41,41 @@ public class FollowStateButton extends RelativeLayout {
         }
     }
     private  void updataUI(int what , String text){
+        Log.d("okhttp","updataUI="+what);
         switch (what) {
-            case 0:
+
+            case 0: //添加关注
                 mProgressBar.clearAnimation();
                 mProgressBar.setVisibility(View.GONE);
-                mTextView.setTextColor(getResources().getColor(R.color.colorWhite));
+                mTextView.setTextColor(getResources().getColor(R.color.colorBlack));
                 mTextView.setText(text);
                 mTextView.setBackgroundResource(R.drawable.border_cicle_color_blue_3);
-                Toast.makeText(mContext, "关注失败！", Toast.LENGTH_SHORT).show();
+                Log.d("okhttp","0="+what);
+                mTextView.setVisibility(View.VISIBLE);
                 break;
-            case 1:
+            case 1: //关注成功
                 mProgressBar.setVisibility(View.GONE);
                 mTextView.setTextColor(getResources().getColor(R.color.colorBlack));
                 mTextView.setText(text);
                 mTextView.setBackgroundResource(R.drawable.fill_blue_circle_3);
-                Toast.makeText(mContext, "关注成功！", Toast.LENGTH_SHORT).show();
+                Log.d("okhttp","1="+what);
+                mTextView.setVisibility(View.VISIBLE);
                 break;
             case 2:
                 //设定按钮颜色以及进度条可见性
                 mProgressBar.setVisibility(View.VISIBLE);
                 mTextView.setText(text);
+                mTextView.setVisibility(View.GONE);
+                Log.d("okhttp","2="+what);
+
                 break;
         }
 
     }
 
+    public void setmOnFollowLister(onFollowLister mOnFollowLister) {
+        this.mOnFollowLister = mOnFollowLister;
+    }
 
     public FollowStateButton(Context context) {
         super(context);
@@ -93,6 +101,7 @@ public class FollowStateButton extends RelativeLayout {
             View view =getChildAt(i);
             if(view instanceof TextView ){
                 mTextView = (TextView) view;
+                mTextView.setTag(0);
             }else  if(view instanceof ProgressBar){
                 mProgressBar = (ProgressBar) view;
             }
@@ -101,17 +110,46 @@ public class FollowStateButton extends RelativeLayout {
             @Override
             public void onClick(View v) {
 
+                String obj ="";
+                Log.d("okhttp",""+mTextView.getTag());
+                if(type == 0) {
+                    type = 1; //未关注 点击表示关注
+                    obj ="关注成功";
+                }else  if(type == 1){
+                    type = 0; //关注 点击表示取消关注
+                    obj ="+关注";
+                }
+                Log.d("okhttp","obj="+obj + ",tag="+type );
                 Message message =Message.obtain();
                 message.what = 2 ;
                 message.obj  = "" ;
                 mMyHand.sendMessage(message);
+
                 Message message2 =Message.obtain();
-                message2.what = 1 ;
-                message2.obj  = "关注成功" ;
+                message2.what = type;
+                message2.obj  = obj ;
                 mMyHand.sendMessageDelayed(message2,2000);
-//                Toast.makeText(mContext,"I am is TextView ",Toast.LENGTH_SHORT).show();
+                if(mOnFollowLister != null) {
+                    mOnFollowLister.onFollowClickLister();
+                }
             }
         });
+    }
+    //已经关注
+    public void alreadyFollow(String text){
+        type =1;
+        Message message =Message.obtain();
+        message.what = type ;
+        message.obj  = text ;
+        mMyHand.sendMessage(message);
+    }
+    //没有关注
+    public void unFollow(String text){
+        type =0;
+        Message message =Message.obtain();
+        message.what = type ;
+        message.obj  = text ;
+        mMyHand.sendMessage(message);
     }
 
 

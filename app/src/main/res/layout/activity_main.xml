@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <com.xiangjiale.followstatebutton.widget.FollowStateButton
-        android:layout_width="wrap_content"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,10 +16,14 @@
         app:layout_constraintTop_toTopOf="parent" >
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:text="+关注"
+            android:gravity="center"
+            android:padding="5dp"
             android:layout_centerInParent="true"
+            android:textColor="@color/colorBlack"
+            android:background="@drawable/border_cicle_color_blue_3"
             />
 
         <ProgressBar
@@ -27,6 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:visibility="gone"
+            android:gravity="center"
             />
 
     </com.xiangjiale.followstatebutton.widget.FollowStateButton>
